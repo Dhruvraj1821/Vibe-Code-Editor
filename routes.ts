@@ -8,6 +8,7 @@ export const protectedRoutes: string[] = [
 
 export const authRoutes: string[] = [
     "/auth/sign-in",
+    "/auth/sign-up"
 ]
 
 export const apiAuthPrefix: string = "/api/auth";
