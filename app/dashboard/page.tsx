@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     id: p.id,
     name: p.title,
     template: p.template,
-    starred: p.starMarks.length > 0,
+    starred: p.StarMarks.length > 0,
     icon: technologyIconMap[p.template] ?? "Code2",
     updatedAt: p.updatedAt,
   }));

@@ -10,7 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Trash2, Copy, ExternalLink, Link2, Star, StarOff } from "lucide-react";
+import {
+  MoreHorizontal, Trash2, Copy, ExternalLink, Link2, Star, StarOff, Pencil
+} from "lucide-react";
 import { deletePlayground, duplicatePlayground, toggleStarMark } from "@/modules/dashboard/actions";
 import { toast } from "sonner";
 
@@ -100,6 +102,13 @@ export function PlaygroundRowActions({
           ) : (
             <><Star className="w-3.5 h-3.5" /> Star</>
           )}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => router.push(`/dashboard/edit/${id}`)}
+          className="gap-2 cursor-pointer"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          Edit
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDuplicate} className="gap-2 cursor-pointer">
           <Copy className="w-3.5 h-3.5" />

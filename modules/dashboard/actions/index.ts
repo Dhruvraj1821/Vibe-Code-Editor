@@ -11,7 +11,7 @@ export const getAllPlaygroundForUser = async () => {
       where: { userId: user?.id },
       include: {
         user: true,
-        starMarks: {
+        StarMarks: {
           where: { userId: user?.id },
         },
       },
@@ -20,6 +20,21 @@ export const getAllPlaygroundForUser = async () => {
     return playground;
   } catch (error) {
     console.log("Error in getAllPlaygroundForUser: ", error);
+  }
+};
+
+export const getPlaygroundById = async (id: string) => {
+  const user = await currentUser();
+  if (!user?.id) throw new Error("Unauthorized");
+
+  try {
+    const playground = await db.playground.findUnique({
+      where: { id, userId: user.id },
+    });
+    return playground;
+  } catch (error) {
+    console.log("Error in getPlaygroundById: ", error);
+    return null;
   }
 };
 
@@ -48,6 +63,32 @@ export const createPlayground = async ({
     return playground;
   } catch (error) {
     console.log("Error in createPlayground: ", error);
+    throw error;
+  }
+};
+
+export const updatePlayground = async ({
+  id,
+  title,
+  description,
+}: {
+  id: string;
+  title: string;
+  description?: string;
+}) => {
+  const user = await currentUser();
+  if (!user?.id) throw new Error("Unauthorized");
+
+  try {
+    const playground = await db.playground.update({
+      where: { id, userId: user.id },
+      data: { title, description },
+    });
+    revalidatePath("/dashboard");
+    revalidatePath(`/dashboard/edit/${id}`);
+    return playground;
+  } catch (error) {
+    console.log("Error in updatePlayground: ", error);
     throw error;
   }
 };
