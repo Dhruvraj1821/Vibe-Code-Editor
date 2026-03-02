@@ -21,6 +21,7 @@ const templates = [
     color: "text-cyan-500",
     border: "border-cyan-500/30 hover:border-cyan-500/60",
     bg: "bg-cyan-500/5",
+    supportsTs: true,
   },
   {
     id: "NEXTJS",
@@ -30,6 +31,7 @@ const templates = [
     color: "text-foreground",
     border: "border-border hover:border-border/80",
     bg: "bg-muted/30",
+    supportsTs: false,
   },
   {
     id: "EXPRESS",
@@ -39,6 +41,7 @@ const templates = [
     color: "text-green-500",
     border: "border-green-500/30 hover:border-green-500/60",
     bg: "bg-green-500/5",
+    supportsTs: false,
   },
   {
     id: "VUE",
@@ -48,6 +51,7 @@ const templates = [
     color: "text-emerald-500",
     border: "border-emerald-500/30 hover:border-emerald-500/60",
     bg: "bg-emerald-500/5",
+    supportsTs: false,
   },
   {
     id: "HONO",
@@ -57,6 +61,7 @@ const templates = [
     color: "text-orange-500",
     border: "border-orange-500/30 hover:border-orange-500/60",
     bg: "bg-orange-500/5",
+    supportsTs: false,
   },
   {
     id: "ANGULAR",
@@ -66,87 +71,24 @@ const templates = [
     color: "text-red-500",
     border: "border-red-500/30 hover:border-red-500/60",
     bg: "bg-red-500/5",
+    supportsTs: false,
   },
 ];
-
-interface ConfigOption {
-  id: string;
-  label: string;
-  description: string;
-  default: boolean;
-}
-
-const templateConfigs: Record<string, ConfigOption[]> = {
-  REACT: [
-    { id: "typescript", label: "TypeScript", description: "Strongly typed JavaScript", default: true },
-    { id: "react-router", label: "React Router", description: "Client-side routing", default: false },
-    { id: "tailwind", label: "Tailwind CSS", description: "Utility-first CSS framework", default: true },
-    { id: "eslint", label: "ESLint", description: "Code linting and formatting", default: true },
-    { id: "vitest", label: "Vitest", description: "Unit testing framework", default: false },
-  ],
-  NEXTJS: [
-    { id: "typescript", label: "TypeScript", description: "Strongly typed JavaScript", default: true },
-    { id: "tailwind", label: "Tailwind CSS", description: "Utility-first CSS framework", default: true },
-    { id: "eslint", label: "ESLint", description: "Code linting and formatting", default: true },
-    { id: "app-router", label: "App Router", description: "Next.js App Router (vs Pages Router)", default: true },
-    { id: "prisma", label: "Prisma", description: "Type-safe database ORM", default: false },
-    { id: "shadcn", label: "Shadcn/ui", description: "Accessible component library", default: false },
-  ],
-  EXPRESS: [
-    { id: "typescript", label: "TypeScript", description: "Strongly typed JavaScript", default: true },
-    { id: "cors", label: "CORS", description: "Cross-origin resource sharing", default: true },
-    { id: "helmet", label: "Helmet", description: "HTTP security headers", default: true },
-    { id: "prisma", label: "Prisma", description: "Type-safe database ORM", default: false },
-    { id: "jwt", label: "JWT Auth", description: "JSON Web Token authentication", default: false },
-    { id: "rate-limit", label: "Rate Limiting", description: "Protect against abuse", default: false },
-  ],
-  VUE: [
-    { id: "typescript", label: "TypeScript", description: "Strongly typed JavaScript", default: true },
-    { id: "vue-router", label: "Vue Router", description: "Official Vue.js router", default: true },
-    { id: "pinia", label: "Pinia", description: "Intuitive state management", default: false },
-    { id: "tailwind", label: "Tailwind CSS", description: "Utility-first CSS framework", default: true },
-    { id: "eslint", label: "ESLint", description: "Code linting and formatting", default: true },
-    { id: "vitest", label: "Vitest", description: "Unit testing framework", default: false },
-  ],
-  HONO: [
-    { id: "typescript", label: "TypeScript", description: "Strongly typed JavaScript", default: true },
-    { id: "cors", label: "CORS", description: "Cross-origin resource sharing", default: true },
-    { id: "jwt", label: "JWT Auth", description: "JSON Web Token authentication", default: false },
-    { id: "zod", label: "Zod Validation", description: "TypeScript-first schema validation", default: true },
-    { id: "rate-limit", label: "Rate Limiting", description: "Protect against abuse", default: false },
-  ],
-  ANGULAR: [
-    { id: "strict", label: "Strict Mode", description: "Strict TypeScript & template checks", default: true },
-    { id: "routing", label: "Routing", description: "Angular Router module", default: true },
-    { id: "material", label: "Angular Material", description: "Material Design components", default: false },
-    { id: "eslint", label: "ESLint", description: "Code linting and formatting", default: true },
-    { id: "ngrx", label: "NgRx", description: "Reactive state management", default: false },
-  ],
-};
-
-type ConfigState = Record<string, boolean>;
-
-function buildDefaultConfig(templateId: string): ConfigState {
-  return Object.fromEntries(
-    (templateConfigs[templateId] ?? []).map((opt) => [opt.id, opt.default])
-  );
-}
 
 export default function NewProjectPage() {
   const router = useRouter();
   const [selectedTemplate, setSelectedTemplate] = useState("REACT");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [useTypeScript, setUseTypeScript] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState<ConfigState>(buildDefaultConfig("REACT"));
+
+  const selectedMeta = templates.find((t) => t.id === selectedTemplate);
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
-    setConfig(buildDefaultConfig(templateId));
-  };
-
-  const handleToggle = (optionId: string, value: boolean) => {
-    setConfig((prev) => ({ ...prev, [optionId]: value }));
+    const meta = templates.find((t) => t.id === templateId);
+    if (!meta?.supportsTs) setUseTypeScript(false);
   };
 
   const handleCreate = async () => {
@@ -160,6 +102,7 @@ export default function NewProjectPage() {
         title,
         description,
         template: selectedTemplate,
+        useTypeScript,
       });
       if (result?.id) {
         toast.success("Project created!");
@@ -172,19 +115,11 @@ export default function NewProjectPage() {
     }
   };
 
-  const currentConfig = templateConfigs[selectedTemplate] ?? [];
-  const enabledCount = Object.values(config).filter(Boolean).length;
-
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <header className="h-14 border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-10 flex items-center px-4 gap-3">
         <Link href="/dashboard">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-          >
+          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-3.5 h-3.5" />
             Back
           </Button>
@@ -195,18 +130,12 @@ export default function NewProjectPage() {
       <div className="flex-1 p-6 max-w-2xl mx-auto w-full">
         <div className="mb-8">
           <h1 className="text-xl font-semibold text-foreground mb-1">Create a new playground</h1>
-          <p className="text-sm text-muted-foreground">
-            Choose a template, configure your stack, and give your project a name
-          </p>
+          <p className="text-sm text-muted-foreground">Choose a template and give your project a name</p>
         </div>
 
-        {/* Project Details */}
         <div className="space-y-4 mb-8">
           <div className="space-y-1.5">
-            <Label
-              htmlFor="title"
-              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
-            >
+            <Label htmlFor="title" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Project Name
             </Label>
             <Input
@@ -218,12 +147,8 @@ export default function NewProjectPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label
-              htmlFor="description"
-              className="text-xs font-medium text-muted-foreground uppercase tracking-wide"
-            >
-              Description{" "}
-              <span className="normal-case font-normal">(optional)</span>
+            <Label htmlFor="description" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Description <span className="normal-case font-normal">(optional)</span>
             </Label>
             <Textarea
               id="description"
@@ -265,38 +190,30 @@ export default function NewProjectPage() {
           </div>
         </div>
 
-        {/* Template Config */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              Configure Project
+        {/* TypeScript toggle — only shown for REACT */}
+        {selectedMeta?.supportsTs && (
+          <div className="mb-8">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3 block">
+              Options
             </Label>
-            <span className="text-xs text-muted-foreground">
-              {enabledCount} of {currentConfig.length} enabled
-            </span>
-          </div>
-
-          <div className="rounded-lg border border-border bg-muted/20 divide-y divide-border overflow-hidden">
-            {currentConfig.map((option) => (
-              <div
-                key={option.id}
-                className="flex items-center justify-between px-4 py-3 hover:bg-accent/40 transition-colors"
-              >
-                <div className="min-w-0 flex-1 mr-4">
-                  <p className="text-sm font-medium text-foreground">{option.label}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{option.description}</p>
+            <div className="rounded-lg border border-border bg-muted/20 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3">
+                <div>
+                  <p className="text-sm font-medium text-foreground">TypeScript</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Use the TypeScript variant of this template
+                  </p>
                 </div>
                 <Switch
-                  checked={config[option.id] ?? option.default}
-                  onCheckedChange={(val) => handleToggle(option.id, val)}
+                  checked={useTypeScript}
+                  onCheckedChange={setUseTypeScript}
                   className="data-[state=checked]:bg-violet-600 flex-shrink-0"
                 />
               </div>
-            ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Submit */}
         <Button
           onClick={handleCreate}
           disabled={loading || !title.trim()}

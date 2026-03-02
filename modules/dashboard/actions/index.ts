@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/modules/auth/actions";
 import { revalidatePath } from "next/cache";
+import { getStarterFiles } from "@/lib/starter-serializer";
 
 export const getAllPlaygroundForUser = async () => {
   const user = await currentUser();
@@ -42,23 +43,33 @@ export const createPlayground = async ({
   title,
   description,
   template,
+  useTypeScript,
 }: {
   title: string;
   description?: string;
   template: string;
+  useTypeScript: boolean;
 }) => {
   const user = await currentUser();
   if (!user?.id) throw new Error("Unauthorized");
 
   try {
+    const files = getStarterFiles(template, useTypeScript);
+
     const playground = await db.playground.create({
       data: {
         title,
         description,
         template: template as any,
         userId: user.id,
+        templateFiles: {
+          create: {
+            content: files,
+          },
+        },
       },
     });
+
     revalidatePath("/dashboard");
     return playground;
   } catch (error) {
@@ -115,6 +126,7 @@ export const duplicatePlayground = async (id: string) => {
   try {
     const original = await db.playground.findUnique({
       where: { id, userId: user.id },
+      include: { templateFiles: true },
     });
     if (!original) throw new Error("Playground not found");
 
@@ -124,8 +136,18 @@ export const duplicatePlayground = async (id: string) => {
         description: original.description,
         template: original.template,
         userId: user.id,
+        ...(original.templateFiles
+          ? {
+              templateFiles: {
+                create: {
+                  content: original.templateFiles.content,
+                },
+              },
+            }
+          : {}),
       },
     });
+
     revalidatePath("/dashboard");
     return duplicate;
   } catch (error) {
@@ -139,12 +161,24 @@ export const toggleStarMark = async (playgroundId: string) => {
   if (!user?.id) throw new Error("Unauthorized");
 
   try {
-    const existing = await db.starMark.findFirst({
-      where: { userId: user.id, playgroundId },
+    const existing = await db.starMark.findUnique({
+      where: {
+        userId_playgroundId: {
+          userId: user.id,
+          playgroundId,
+        },
+      },
     });
 
     if (existing) {
-      await db.starMark.delete({ where: { id: existing.id } });
+      await db.starMark.delete({
+        where: {
+          userId_playgroundId: {
+            userId: user.id,
+            playgroundId,
+          },
+        },
+      });
     } else {
       await db.starMark.create({
         data: {
