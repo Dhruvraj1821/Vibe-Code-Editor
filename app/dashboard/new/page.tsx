@@ -106,7 +106,7 @@ export default function NewProjectPage() {
       });
       if (result?.id) {
         toast.success("Project created!");
-        router.push(`/dashboard/playground/${result.id}`);
+        router.push(`playground/${result.id}`);
       }
     } catch {
       toast.error("Failed to create project");
@@ -207,7 +207,7 @@ export default function NewProjectPage() {
                 <Switch
                   checked={useTypeScript}
                   onCheckedChange={setUseTypeScript}
-                  className="data-[state=checked]:bg-violet-600 flex-shrink-0"
+                  className="data-[state=checked]:bg-violet-600 shrink-0"
                 />
               </div>
             </div>

@@ -28,7 +28,7 @@ export interface PlaygroundTableItem {
   template: string;
   starred: boolean;
   icon: string;
-  updatedAt: Date;
+  updatedAt: string;
 }
 
 interface PlaygroundTableProps {
@@ -87,7 +87,7 @@ export function PlaygroundTable({ data: initialData }: PlaygroundTableProps) {
             >
               {/* Name */}
               <Link
-                href={`/dashboard/playground/${item.id}`}
+                href={`/playground/${item.id}`}
                 className="flex items-center gap-2.5 min-w-0"
               >
                 <div className="w-7 h-7 rounded-md bg-muted flex items-center justify-center flex-shrink-0">

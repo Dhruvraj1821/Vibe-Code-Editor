@@ -24,7 +24,7 @@ export default async function DashboardPage() {
     template: p.template,
     starred: p.StarMarks.length > 0,
     icon: technologyIconMap[p.template] ?? "Code2",
-    updatedAt: p.updatedAt,
+    updatedAt: p.updatedAt.toISOString(),
   }));
 
   return <DashboardClient initialData={formattedData} />;

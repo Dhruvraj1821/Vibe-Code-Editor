@@ -74,13 +74,13 @@ export function PlaygroundRowActions({
   };
 
   const handleCopyUrl = () => {
-    const url = `${window.location.origin}/dashboard/playground/${id}`;
+    const url = `${window.location.origin}/playground/${id}`;
     navigator.clipboard.writeText(url);
     toast.success("URL copied to clipboard");
   };
 
   const handleOpenInNewTab = () => {
-    window.open(`/dashboard/playground/${id}`, "_blank");
+    window.open(`/playground/${id}`, "_blank");
   };
 
   return (
