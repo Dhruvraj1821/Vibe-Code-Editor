@@ -1,3 +1,8 @@
+const HIDDEN_FROM_TREE = new Set([
+  "package-lock.json",
+  ".gitkeep",
+]);
+
 export interface FileNode {
   name: string;
   path: string;
@@ -33,7 +38,7 @@ export function buildFileTree(files: Record<string, string>): FileNode[] {
 
     for (const [name, value] of Object.entries(obj)) {
       if (name.startsWith("__")) continue;
-      if (name === ".gitkeep") continue;
+      if (HIDDEN_FROM_TREE.has(name)) continue;
 
       const path = parentPath ? `${parentPath}/${name}` : name;
 
@@ -41,7 +46,9 @@ export function buildFileTree(files: Record<string, string>): FileNode[] {
         fileNodes.push({ name, path: value.__path, type: "file" });
       } else {
         const children = toNodes(value, path);
-        folders.push({ name, path, type: "folder", children });
+        if (children.length > 0) {
+          folders.push({ name, path, type: "folder", children });
+        }
       }
     }
 

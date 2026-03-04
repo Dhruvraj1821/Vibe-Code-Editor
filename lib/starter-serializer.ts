@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 
 const IGNORE_FILES = new Set([
-  "package-lock.json",
   "README.md",
   ".gitignore",
   "netlify.toml",

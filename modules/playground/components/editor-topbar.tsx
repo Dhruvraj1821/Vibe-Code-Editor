@@ -9,9 +9,11 @@ interface EditorTopBarProps {
   projectName: string;
   activeFile: string | null;
   onRun?: () => void;
+  isBooting?: boolean;
+  isRunning?: boolean;
 }
 
-export function EditorTopBar({ projectName, activeFile, onRun }: EditorTopBarProps) {
+export function EditorTopBar({ projectName, activeFile, onRun , isBooting , isRunning }: EditorTopBarProps) {
   const { isSaving, isDirty } = useEditorStore();
 
   return (
@@ -61,10 +63,11 @@ export function EditorTopBar({ projectName, activeFile, onRun }: EditorTopBarPro
         <Button
           size="sm"
           onClick={onRun}
+          disabled={isBooting || isRunning}
           className="h-7 gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3"
         >
           <Play className="w-3 h-3" />
-          Run
+          {isBooting ? "Booting..." : isRunning ? "Running" : "Run"}
         </Button>
         <Button
           variant="ghost"
