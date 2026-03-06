@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import { updateTemplateFiles } from "@/modules/dashboard/actions";
 import { isHiddenFromTree } from "../utils/file-tree-utils";
+import { getWebContainer } from "../lib/webcontainer";
+
 interface EditorStore {
   playgroundId: string | null;
   projectName: string;
@@ -33,6 +35,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       projectName,
       files,
       activeFile: firstFile,
+      isDirty: false,
     });
   },
 
@@ -94,6 +97,16 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   updateFileContent: (path, content) => {
     const { files } = get();
     set({ files: { ...files, [path]: content }, isDirty: true });
+
+    // Write to WebContainer filesystem for hot reload
+    // Only runs if WebContainer is already booted — safe to call anytime
+    getWebContainer().then((wc) => {
+      wc.fs.writeFile(path, content).catch(() => {
+        // Silently ignore — WebContainer may not be running yet
+      });
+    }).catch(() => {
+      // WebContainer not booted yet — that's fine
+    });
   },
 
   persistFiles: async (files) => {
@@ -102,7 +115,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set({ isSaving: true });
     try {
       await updateTemplateFiles(playgroundId, files);
-      set({isDirty: false});
+      set({ isDirty: false });
     } finally {
       set({ isSaving: false });
     }
