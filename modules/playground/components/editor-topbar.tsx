@@ -2,18 +2,26 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { X, Play, Settings, ChevronRight } from "lucide-react";
+import { X, Play, Settings, ChevronRight, Monitor } from "lucide-react";
 import { useEditorStore } from "@/modules/playground/store/editor-store";
 
 interface EditorTopBarProps {
   projectName: string;
   activeFile: string | null;
   onRun?: () => void;
+  onPreview?: () => void;
   isBooting?: boolean;
   isRunning?: boolean;
 }
 
-export function EditorTopBar({ projectName, activeFile, onRun , isBooting , isRunning }: EditorTopBarProps) {
+export function EditorTopBar({
+  projectName,
+  activeFile,
+  onRun,
+  onPreview,
+  isBooting,
+  isRunning,
+}: EditorTopBarProps) {
   const { isSaving, isDirty } = useEditorStore();
 
   return (
@@ -44,8 +52,6 @@ export function EditorTopBar({ projectName, activeFile, onRun , isBooting , isRu
             </span>
           </>
         )}
-
-        {/* Save status indicators */}
         {isSaving && (
           <span className="text-muted-foreground text-[10px] ml-2 shrink-0">
             Saving...
@@ -64,10 +70,21 @@ export function EditorTopBar({ projectName, activeFile, onRun , isBooting , isRu
           size="sm"
           onClick={onRun}
           disabled={isBooting || isRunning}
-          className="h-7 gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3"
+          className="h-7 gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white px-3 disabled:opacity-50"
         >
           <Play className="w-3 h-3" />
           {isBooting ? "Booting..." : isRunning ? "Running" : "Run"}
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={onPreview}
+          disabled={!isRunning}
+          className="h-7 gap-1.5 text-xs px-3 disabled:opacity-40"
+          title={!isRunning ? "Start the server first" : "Open preview"}
+        >
+          <Monitor className="w-3 h-3" />
+          Preview
         </Button>
         <Button
           variant="ghost"

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { updateTemplateFiles } from "@/modules/dashboard/actions";
-
+import { isHiddenFromTree } from "../utils/file-tree-utils";
 interface EditorStore {
   playgroundId: string | null;
   projectName: string;
@@ -27,7 +27,13 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   isDirty: false,
 
   initStore: (playgroundId, projectName, files) => {
-    set({ playgroundId, projectName, files, activeFile: Object.keys(files)[0] ?? null });
+    const firstFile = Object.keys(files).find(f => !isHiddenFromTree(f)) ?? null;
+    set({
+      playgroundId,
+      projectName,
+      files,
+      activeFile: firstFile,
+    });
   },
 
   setActiveFile: (path) => set({ activeFile: path }),

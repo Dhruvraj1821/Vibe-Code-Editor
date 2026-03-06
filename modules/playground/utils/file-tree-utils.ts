@@ -3,6 +3,11 @@ const HIDDEN_FROM_TREE = new Set([
   ".gitkeep",
 ]);
 
+export function isHiddenFromTree(filePath: string): boolean {
+  const filename = filePath.split("/").pop() ?? "";
+  return HIDDEN_FROM_TREE.has(filename);
+}
+
 export interface FileNode {
   name: string;
   path: string;

@@ -1,5 +1,4 @@
 import NextAuth from "next-auth";
-import { NextResponse } from "next/server";
 
 import {
     DEFAULT_LOGIN_REDIRECT,
@@ -18,7 +17,6 @@ export default auth((req) => {
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-    const isPlaygroundRoute = nextUrl.pathname.startsWith("/playground");
 
     if (isApiAuthRoute) return null;
 
